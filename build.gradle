@@ -1,0 +1,166 @@
+buildscript {
+    repositories {
+        jcenter()
+        google()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:+'
+        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
+    }
+}
+
+apply plugin: 'com.android.application'
+repositories {
+    jcenter()
+}
+
+buildDir = "C:\\Builds\\elitecard"
+
+android {
+
+    compileSdkVersion 33
+    buildToolsVersion '33.0'
+    defaultConfig {
+        applicationId 'hu.goldcard.app'
+        minSdkVersion 10
+        targetSdkVersion 33
+        versionCode 3
+        versionName '1.2.0'
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES.txt'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/notice.txt'
+        exclude 'META-INF/license.txt'
+        exclude 'META-INF/dependencies.txt'
+        exclude 'META-INF/LGPL2.1'
+        exclude 'freemarker/ext/beans/unsafeMethods.txt'
+        exclude 'freemarker/ext/jsp/web-app_2_2.dtd'
+        exclude 'freemarker/ext/jsp/web-app_2_3.dtd'
+        exclude 'freemarker/ext/jsp/web-app_2_4.xsd'
+        exclude 'freemarker/ext/jsp/web-app_2_5.xsd'
+        exclude 'freemarker/ext/jsp/web-jsptaglibrary_1_1.dtd'
+        exclude 'freemarker/ext/jsp/web-jsptaglibrary_1_2.dtd'
+        exclude 'freemarker/ext/jsp/web-jsptaglibrary_2_0.xsd'
+        exclude 'freemarker/ext/jsp/web-jsptaglibrary_2_1.xsd'
+        exclude 'freemarker/version.properties'
+        exclude 'androidannotations-api.properties'
+        exclude 'org/jsoup/nodes/entities-base.properties'
+        exclude 'org/jsoup/nodes/entities-full.properties'
+        exclude 'META-INF/services/com.fasterxml.jackson.core.JsonFactory'
+        exclude 'commons-codec.license'
+    }
+
+    signingConfigs {
+        release {
+            storeFile file('C:/Dropbox/Munka/Goldess/goldess.jks')
+            storePassword '56W85:K5tD|!Y.2;6;5|788*^5:a=y'
+            keyAlias 'goldess'
+            keyPassword '56W85:K5tD|!Y.2;6;5|788*^5:a=y'
+        }
+    }
+
+    buildTypes {
+        debug {
+            runProguard false
+            debuggable true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+        release {
+            runProguard true
+            debuggable false
+            signingConfig signingConfigs.release
+            zipAlign true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+    }
+
+    productFlavors {
+        app {
+            applicationId 'hu.goldcard.app'
+            buildConfigField "boolean", "EDITOR", "false"
+        }
+        editor {
+            applicationId 'hu.goldcard.editor'
+            buildConfigField "boolean", "EDITOR", "true"
+        }
+    }
+}
+
+apt {
+    arguments {
+        resourcePackageName android.defaultConfig.applicationId
+        androidManifestFile variant.processResources.manifestFile
+    }
+}
+
+dependencies {
+    //compile fileTree(dir: 'libs', include: ['*.jar'])
+
+    //compile 'com.android.support:appcompat-v7:19.+'
+    compile 'com.android.support:support-v4:19.+'
+   
+    apt "org.androidannotations:androidannotations:+"
+    compile 'org.androidannotations:androidannotations-api:+'
+
+    //compile 'com.googlecode.ez-vcard:ez-vcard:+'
+
+    compile 'org.jsoup:jsoup:1.7.3'
+    compile 'org.freemarker:freemarker:2.3.20'
+    compile 'com.fasterxml.jackson.core:jackson-core:2.3.3'
+    compile 'com.google.dagger:dagger:2.0'
+    annotationProcessor 'com.google.dagger:dagger-compiler:2.0'
+
+   
+}
+
+/*
+def getSourceSetName(variant) {
+    return new File(variant.dirName).getName();
+}*/
+
+android.applicationVariants.all { variant ->
+    //def aptOutputDir = project.file("build/source/apt-gen")
+    //def aptOutput = new File(aptOutputDir, variant.dirName)
+    println "****************************************************************************************************************"
+    println "variant: ${variant.name}"
+    //println "manifest:  ${variant.processResources.manifestFile}"
+    //println "aptOutput:  ${aptOutput}"
+    println "****************************************************************************************************************"
+
+    //android.sourceSets[getSourceSetName(variant)].java.srcDirs += aptOutput.getPath()
+
+    variant.javaCompile.options.compilerArgs += [
+           // '-AandroidManifestFile=' + variant.processResources.manifestFile,
+            '-AresourcePackageName=' + android.defaultConfig.applicationId,
+           // '-s', aptOutput
+    ]
+/*
+    variant.javaCompile.source = variant.javaCompile.source.filter { p ->
+        return !p.getPath().startsWith(aptOutputDir.getPath())
+    }
+
+    variant.javaCompile.doFirst {
+        aptOutput.mkdirs()
+    }
+
+    if (variant.name.equals("Release")) {
+        def file = variant.outputFile
+        variant.outputFile = new File(file.parent, file.name.replace("-release.apk", "-production-" + ".apk"))
+    } else {
+        def file = variant.outputFile
+        variant.outputFile = new File(file.parent, file.name.replace("-debug.apk", "-staging-" + ".apk"))
+    }*/
+}
